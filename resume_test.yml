@@ -1,0 +1,117 @@
+account:
+  email: unojose234@gmail.com
+  password: waibao1234567Go@
+
+my-information:
+  source: No
+  previous-work: Other
+  country: Colombia
+  first-name: United States of America
+  last-name: test
+  address-line: Somewhere
+  city: Sterling
+  state: Virginia
+  zip: 201641
+  phone-device-type: Landline
+  phone-code-country: +33
+  phone-number: 0612345678
+  phone-extension:
+
+my-experience:
+   work-experiences:
+     - work1:
+         job-title: Software engineer
+         company: Orange Cyberdefense
+         location: Paris, France
+         current-work: true
+         from: 09/2022
+         to: 09/2023
+         description: |
+           - Migrated the platform from a monolithic application to a micro-services architecture.
+           - Developed secured and scalable APIs using Flask-RestX for the platform.
+           - Created sandboxed web scrappers using Selenium and Docker to snapshot phishing websites in an isolated
+           - environment.
+           - Created Automated background workers using Celery to handle application tasks asynchronously.
+           - Identified and patched RCE vulnerability and security misconfiguration on the plateform.
+           - Code review process through internal Gitlab.
+     - work2:
+         job-title: Fullstack web developer
+         company: Kalendes
+         location: Paris, France
+         current-work: false
+         from: 03/2022
+         to: 09/2023
+         description: |
+           - Improved the functional aspects for the end users to easily find the beauty professional of their choice.
+           - Participated in the corrective and evolutionary maintenance of the internal web application for Kalendes HelpDesk team to allow them make calls over IP and handle clients with ease.
+           - Worked on marketing issues for beauty professionals to allow them increase their sales by using Facebook API and Google business API to automate offers posting and handle all social media accounts statistics in one dashboard.
+           - Redesigned and implemented new UI screens using HTML, CSS and AngularJS.
+           - Developed new API endpoints using NodeJS.
+           - Maintained MySQL database of customers and beauty professionals.
+     - work3:
+         job-title: Python developer
+         company: Cerist
+         location: Algiers, Algeria
+         current-work: false
+         from: 01/2021
+         to: 07/2021
+         description: |
+           - Created machine learning models to detect credit cards frauds on e-commerce environments using Python
+           and Sklearn Library.
+           - Applied unbalanced dataset algorithms to balance datasets using SMOTE super-sampling to improve the
+           results of the learning algorithms.
+           - Trained and combined different machine learning algorithms supervised and non-supervised to reach the
+           optimal fraud detection possible.
+ 
+   education-experiences:
+     - education1:
+        university: University of Science and Technology Houari Boumediene
+        degree: Master
+        field-of-study: Computer Science
+        gpa: 3.5/4.0
+        from: '2018'
+        to: '2022'
+     - education2:
+        university: University of Science and Technology Houari Boumediene
+        degree: Bachelor
+        field-of-study: Computer Science
+        gpa: 3.5/4.0
+        from: '2015'
+        to: '2018'
+   languages:
+     - language1:
+         language: English
+         fluent: true
+         comprehension: Advanced
+         overall: Advanced
+         reading: Advanced
+         speaking: Advanced
+         writing: Advanced
+         level: "C2 (Proficient/Native Speaker)"
+     - language2:
+         language: French
+         fluent: true
+         comprehension: Advanced
+         overall: Advanced
+         reading: Advanced
+         speaking: Advanced
+         writing: Advanced
+         level: "C2 (Proficient/Native Speaker)"
+   resume: /home/lian/下载/yiqun-xu-resume.pdf
+   websites:
+     - https://www.linkedin.com/in/aimene-ahdibi-159b7a1a1/
+     - https://github.com/ahdibiaymen/
+
+additional-information:
+  work-authorization: 'Yes'
+  visa-sponsorship: 'No'
+  above-18-year: 'Yes'
+  high-school-diploma: 'Yes'
+  served-military: 'No'
+  military-spouse: 'No'
+  protected-veteran: 'I am not'
+  self-identification: 'Male'
+  accept-terms: 'true'
+  ethnicity: 'White'
+  language: 'English'
+  disability: 'No'
