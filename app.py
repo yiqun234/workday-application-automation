@@ -99,6 +99,13 @@ class WorkdayAutofill:
             raise ValueError("Something went wrong while parsing your resume.yml LANGUAGES"
                              f" -> please review the additional-information key !")
 
+    def load_self_identify(self):
+        try:
+            return self.resume_data["self-identify"]
+        except KeyError:
+            raise ValueError("Something went wrong while parsing your resume.yml LANGUAGES"
+                             f" -> please review the self-identify key !")
+
     def locate_and_fill(self, element_xpath, input_data, kwoptions):
         if not input_data:
             return False
@@ -785,6 +792,7 @@ class WorkdayAutofill:
             print("[INFO] Please complete the required information and ")
         # fill the available information until it reach review page
         information = self.load_additional_information()
+        selfIdentify = self.load_self_identify()
         instructions = [
             # # 18 yo ?
             # PageStep(action="LOCATE_DROPDOWN_AND_FILL",
@@ -849,7 +857,7 @@ class WorkdayAutofill:
                      params=[f'//h2[contains(text(),"Self Identify")]'
                              f'/following::text()[contains(.,"Language")]'
                              f'/following::button[1]',
-                             information["language"]]),
+                             selfIdentify["language"]]),
             # Name
             PageStep(action="LOCATE_AND_FILL",
                      params=[f'//h2[contains(text(),"Self Identify")]'
@@ -1124,9 +1132,6 @@ if __name__ == '__main__':
         application_link=APPLICATION_LINK,
         resume_path=RESUME_PATH
     )
-    print(today_date_in_keys())
-    print(s.load_resume())
-    print(s.load_additional_information())
 
     s.start_application()
     print("hello")

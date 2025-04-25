@@ -102,6 +102,10 @@ my-experience:
      - https://www.linkedin.com/in/aimene-ahdibi-159b7a1a1/
      - https://github.com/ahdibiaymen/
 
+self-identify:
+  language: 'English'
+
+# 其他的一些信息，暂时没啥用
 additional-information:
   work-authorization: 'Yes'
   visa-sponsorship: 'No'
@@ -113,5 +117,4 @@ additional-information:
   self-identification: 'Male'
   accept-terms: 'true'
   ethnicity: 'White'
-  language: 'English'
   disability: 'No'
