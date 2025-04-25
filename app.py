@@ -778,7 +778,7 @@ class WorkdayAutofill:
         time.sleep(5) # 等待跳转
         return True
 
-    def fill_my_additional_information(self):
+    def fill_self_identify(self):
         if self.check_application_review_reached():
             print("[INFO] Application completed ! click submit")
         else:
@@ -786,60 +786,60 @@ class WorkdayAutofill:
         # fill the available information until it reach review page
         information = self.load_additional_information()
         instructions = [
-            # 18 yo ?
-            PageStep(action="LOCATE_DROPDOWN_AND_FILL",
-                     params=[f'//text()[contains(.,"Are you at least 18")]'
-                             f'/following::button[1]',
-                             information["above-18-year"]]),
-            # high school or GED ?
-            PageStep(action="LOCATE_DROPDOWN_AND_FILL",
-                     params=[f'//text()[contains(.,"Do you have a high school")]'
-                             f'/following::button[1]',
-                             information["high-school-diploma"]]),
-            # authorized to work ?
-            PageStep(action="LOCATE_DROPDOWN_AND_FILL",
-                     params=[f'//text()[contains(.,"authorized to work")]'
-                             f'/following::button[1]',
-                             information["work-authorization"]]),
-            # visa sponsorship ?
-            PageStep(action="LOCATE_DROPDOWN_AND_FILL",
-                     params=[f'//text()[contains(.,"sponsorship")]'
-                             f'/following::button[1]',
-                             information["visa-sponsorship"]]),
-            # Serving military ?
-            PageStep(action="LOCATE_DROPDOWN_AND_FILL",
-                     params=[f'//text()[contains(.,"Have you served")]'
-                             f'/following::button[1]',
-                             information["served-military"]]),
-            # military spouse ?
-            PageStep(action="LOCATE_DROPDOWN_AND_FILL",
-                     params=[f'//text()[contains(.,"former military spouse")]'
-                             f'/following::button[1]',
-                             information["military-spouse"]]),
-            # Protected veteran
-            PageStep(action="LOCATE_DROPDOWN_AND_FILL",
-                     params=[f'//text()[contains(.,"Protected Veteran")]'
-                             f'/following::button[1]',
-                             information["protected-veteran"]]),
-            # ethnicity
-            PageStep(action="LOCATE_DROPDOWN_AND_FILL",
-                     params=[f'//text()[contains(.,"ethnicity category")]'
-                             f'/following::button[1]',
-                             information["ethnicity"]]),
-            # Gender / self identification
-            PageStep(action="LOCATE_DROPDOWN_AND_FILL",
-                     params=[f'//text()[contains(.,"Gender")]'
-                             f'/following::button[1]',
-                             information["self-identification"]]),
-
-            # Accept Terms ?
-            PageStep(action="LOCATE_AND_CLICK"
-                     , params=[
-                        f'//text()[contains(.,"I consent to")]'
-                        f'/following::input[1]'
-                     ],
-                     options={"required": False}
-                    ),
+            # # 18 yo ?
+            # PageStep(action="LOCATE_DROPDOWN_AND_FILL",
+            #          params=[f'//text()[contains(.,"Are you at least 18")]'
+            #                  f'/following::button[1]',
+            #                  information["above-18-year"]]),
+            # # high school or GED ?
+            # PageStep(action="LOCATE_DROPDOWN_AND_FILL",
+            #          params=[f'//text()[contains(.,"Do you have a high school")]'
+            #                  f'/following::button[1]',
+            #                  information["high-school-diploma"]]),
+            # # authorized to work ?
+            # PageStep(action="LOCATE_DROPDOWN_AND_FILL",
+            #          params=[f'//text()[contains(.,"authorized to work")]'
+            #                  f'/following::button[1]',
+            #                  information["work-authorization"]]),
+            # # visa sponsorship ?
+            # PageStep(action="LOCATE_DROPDOWN_AND_FILL",
+            #          params=[f'//text()[contains(.,"sponsorship")]'
+            #                  f'/following::button[1]',
+            #                  information["visa-sponsorship"]]),
+            # # Serving military ?
+            # PageStep(action="LOCATE_DROPDOWN_AND_FILL",
+            #          params=[f'//text()[contains(.,"Have you served")]'
+            #                  f'/following::button[1]',
+            #                  information["served-military"]]),
+            # # military spouse ?
+            # PageStep(action="LOCATE_DROPDOWN_AND_FILL",
+            #          params=[f'//text()[contains(.,"former military spouse")]'
+            #                  f'/following::button[1]',
+            #                  information["military-spouse"]]),
+            # # Protected veteran
+            # PageStep(action="LOCATE_DROPDOWN_AND_FILL",
+            #          params=[f'//text()[contains(.,"Protected Veteran")]'
+            #                  f'/following::button[1]',
+            #                  information["protected-veteran"]]),
+            # # ethnicity
+            # PageStep(action="LOCATE_DROPDOWN_AND_FILL",
+            #          params=[f'//text()[contains(.,"ethnicity category")]'
+            #                  f'/following::button[1]',
+            #                  information["ethnicity"]]),
+            # # Gender / self identification
+            # PageStep(action="LOCATE_DROPDOWN_AND_FILL",
+            #          params=[f'//text()[contains(.,"Gender")]'
+            #                  f'/following::button[1]',
+            #                  information["self-identification"]]),
+            #
+            # # Accept Terms ?
+            # PageStep(action="LOCATE_AND_CLICK"
+            #          , params=[
+            #             f'//text()[contains(.,"I consent to")]'
+            #             f'/following::input[1]'
+            #          ],
+            #          options={"required": False}
+            #         ),
 
 
 
@@ -886,7 +886,6 @@ class WorkdayAutofill:
                      params=[
                          '//button[contains(text(),"Save and Continue")]'])
         ])
-        time.sleep(10000000)
         return True
 
     def check_application_review_reached(self):
@@ -921,8 +920,8 @@ class WorkdayAutofill:
             if self.check_element_exist('//div[@aria-labelledby="Work-Experience-section"]'):
                 return "工作经历页面"
                 
-            if self.check_element_exist('//div[@aria-labelledby="Education-section"]'):
-                return "教育经历页面"
+            # if self.check_element_exist('//div[@aria-labelledby="Education-section"]'):
+            #     return "教育经历页面"
                 
             if self.check_element_exist('//h2[contains(text(),"Self Identify")]'):
                 return "附加信息页面"
@@ -938,55 +937,6 @@ class WorkdayAutofill:
             print(f"[错误] 页面识别失败: {e}")
         
         return "未知页面"
-
-    def process_current_page(self):
-        """处理当前页面，自动选择处理方法或提示人工操作"""
-        # 识别当前页面
-        page_type = self.identify_current_page()
-        print(f"[信息] 当前识别页面类型: {page_type}")
-        
-        # 根据页面类型选择处理方法
-        if page_type == "登录页面":
-            result = self.login()
-            # 登录后等待页面跳转
-            time.sleep(5)
-            # 检查是否页面变化
-            new_page_type = self.identify_current_page()
-            if new_page_type == page_type:
-                print("[警告] 登录后页面类型未变化，可能需要人工干预")
-                return self.handle_manual_operation()
-            else:
-                print(f"[信息] 页面已变化为: {new_page_type}")
-                return True
-        elif page_type == "创建账号页面":
-            result = self.create_account()
-            if not result:
-                # 如果创建账号失败，尝试登录
-                print("[信息] 尝试登录")
-                return self.login()
-            return True
-        elif page_type == "个人信息页面":
-            print("[信息] 开始填写个人信息")
-            result = self.fill_my_information_page()
-            print("[信息] 个人信息填写完成")
-            return result
-        elif page_type == "工作经历页面":
-            print("[信息] 开始填写工作经历")
-            result = self.fill_my_experience_page()
-            print("[信息] 工作经历填写完成")
-            return result
-        elif page_type == "附加信息页面":
-            print("[信息] 开始填写附加信息")
-            result = self.fill_my_additional_information()
-            print("[信息] 附加信息填写完成")
-            return result
-        elif page_type == "审核页面":
-            print("[完成] 已到达申请审核页面")
-            return self.submit_application()
-        else:
-            # 未知页面，需要人工干预
-            print(f"[警告] 检测到未知页面类型: {page_type}")
-            return self.handle_manual_operation()
 
     def handle_manual_operation(self):
         """处理需要人工干预的情况"""
@@ -1078,7 +1028,7 @@ class WorkdayAutofill:
                 self.fill_my_experience_page()
             elif page_type == "附加信息页面":
                 print("[信息] 填写附加信息")
-                self.fill_my_additional_information()
+                self.fill_self_identify()
             else:
                 # 未知表单页面，询问用户
                 print(f"[警告] 检测到未知页面类型: {page_type}")
