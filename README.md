@@ -1,6 +1,6 @@
 # workday-application-automation
 
-1. python 3.7+
+1. python 3.7+, copy resume_test.yml to resume.yml and edit it
 2. ``
     python -m venv ./venv
    ``

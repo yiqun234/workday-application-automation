@@ -60,7 +60,7 @@ def today_date_in_keys():
     today_date = datetime.now().date()
     date_str = (str(today_date.month) +
                 "/" +
-                str(today_date.month) +
+                str(today_date.day) +
                 "/" +
-                str(today_date.day))
+                str(today_date.year))
     return convert_strdate_to_numbpad_keys(date_str)

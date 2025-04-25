@@ -257,6 +257,9 @@ class WorkdayAutofill:
                      options={"required": False})
         ])
 
+        # 等待email输入框出现
+        self.wait_for_element_presence('//input[@data-automation-id="email"]', 10)
+
         # 填写邮箱和密码
         email = self.resume_data["account"]["email"]
         password = self.resume_data["account"]["password"]
@@ -286,17 +289,25 @@ class WorkdayAutofill:
         time.sleep(2)
         self.execute_instructions([
             PageStep(action="LOCATE_AND_CLICK",
-                     params=['//button[@data-automation-id="createAccountSubmitButton"]'],
-                     options={"required": True})
+                     params=['//div[@data-automation-id="click_filter"]'],  # Changed from signInButton to signInLink
+            )
         ])
 
         # 等待 5 秒
         time.sleep(5)
+        print("[INFO] 创建账号结束")
 
         # 检查是否有错误消息（账号可能已存在）
-        return not self.check_element_exist('//div[@data-automation-id="errorMessage"]')
+        result = not self.check_element_exist('//div[@data-automation-id="errorMessage"]')
+        if result:
+            print("[INFO] 账号创建成功")
+        else:
+            print("[INFO] 账号创建失败，可能已存在")
+        return result
 
     def login(self):
+        """登录账号，成功返回True"""
+        print("[INFO] 开始登录")
         # 点击登陆链接 (Now using signInLink button)
         self.execute_instructions([
             PageStep(action="LOCATE_AND_CLICK",
@@ -329,10 +340,23 @@ class WorkdayAutofill:
             PageStep(action="LOCATE_AND_CLICK",
                      params=[submit_xpath])
         ])
+        
+        # 等待登录完成
+        time.sleep(5)
+        print("[INFO] 登录完成")
+        
+        # 验证登录成功 - 检查是否不再有登录按钮
+        login_success = not self.check_element_exist('//button[@data-automation-id="signInLink"]')
+        if login_success:
+            print("[INFO] 登录成功")
+        else:
+            print("[INFO] 登录可能失败，请检查")
+        
+        return True  # 返回True让流程继续
 
     def fill_my_information_page(self):
         # Previous work
-        time.sleep(5)
+        # time.sleep(5)
         if self.resume_data["my-information"]["previous-work"]:
             previous_work_xpath = '//text()[contains(.,"former")]/following::input[1]'
 
@@ -427,6 +451,9 @@ class WorkdayAutofill:
         ]
 
         self.execute_instructions(instructions)
+        # 等待页面加载
+        time.sleep(5)
+        return True
 
     def add_works(self, instructions):
         # check if there are work experiences
@@ -725,13 +752,6 @@ class WorkdayAutofill:
                     else:
                          print(f"[INFO] Website {idx+1} already exists, skipping add another button")
 
-
-            instructions.append(
-                PageStep(action="LOCATE_AND_CLICK",
-                         params=[
-                             '//button[contains(text(),"Save and Continue")]'])
-            )
-
         return instructions
 
     def fill_my_experience_page(self):
@@ -748,6 +768,15 @@ class WorkdayAutofill:
             instructions = action(instructions)
 
         self.execute_instructions(instructions=instructions)
+        # 等待页面加载, 等等简历上传的
+        time.sleep(5)
+        self.execute_instructions([
+            PageStep(action="LOCATE_AND_CLICK",
+                     params=[
+                         '//button[contains(text(),"Save and Continue")]'])
+        ])
+        time.sleep(5) # 等待跳转
+        return True
 
     def fill_my_additional_information(self):
         if self.check_application_review_reached():
@@ -756,8 +785,6 @@ class WorkdayAutofill:
             print("[INFO] Please complete the required information and ")
         # fill the available information until it reach review page
         information = self.load_additional_information()
-        print(information)
-        print(information["above-18-year"])
         instructions = [
             # 18 yo ?
             PageStep(action="LOCATE_DROPDOWN_AND_FILL",
@@ -807,9 +834,12 @@ class WorkdayAutofill:
 
             # Accept Terms ?
             PageStep(action="LOCATE_AND_CLICK"
-                     , params=[f'//text()[contains(.,"I consent to")]'
-                               f'/following::input[1]',
-                               information["accept-terms"]]),
+                     , params=[
+                        f'//text()[contains(.,"I consent to")]'
+                        f'/following::input[1]'
+                     ],
+                     options={"required": False}
+                    ),
 
 
 
@@ -821,7 +851,7 @@ class WorkdayAutofill:
                              f'/following::button[1]',
                              information["language"]]),
             # Name
-            PageStep(action="LOCATE_DROPDOWN_AND_FILL",
+            PageStep(action="LOCATE_AND_FILL",
                      params=[f'//h2[contains(text(),"Self Identify")]'
                              f'/following::text()[contains(.,"Name")]'
                              f'/following::input[1]',
@@ -830,23 +860,34 @@ class WorkdayAutofill:
                              self.resume_data["my-information"]["last-name"]
                              ]),
             # Today's Date
-            PageStep(action="LOCATE_DROPDOWN_AND_FILL",
+            PageStep(action="LOCATE_AND_FILL",
                      params=[f'//h2[contains(text(),"Self Identify")]'
                              f'/following::text()[contains(.,"Date")]'
                              f'/following::input[1]',
                              today_date_in_keys()]),
-
-            # Disability
-            PageStep(action="LOCATE_AND_CLICK",
-                     params=[
-                         f'//h2[contains(text(),"Self Identify")]'
-                         f'/following::label[contains(text(),"No")]'
-                     ],
-                     options={"required": False}
-                     ),
         ]
 
         self.execute_instructions(instructions=instructions)
+        # 等待页面加载
+        time.sleep(5)
+
+        self.execute_instructions([
+            PageStep(action="LOCATE_AND_CLICK",
+                     params=[
+                         f'//h2[contains(text(),"Self Identify")]'
+                         f'/following::label[contains(text(),"No,")]'
+                     ],
+                     )
+        ])
+        time.sleep(1)
+
+        self.execute_instructions([
+            PageStep(action="LOCATE_AND_CLICK",
+                     params=[
+                         '//button[contains(text(),"Save and Continue")]'])
+        ])
+        time.sleep(10000000)
+        return True
 
     def check_application_review_reached(self):
         try:
@@ -866,28 +907,259 @@ class WorkdayAutofill:
         else:
             return bool(element)
 
-    def start_application(self):
-        self.driver.get(self.application_link)
+    def identify_current_page(self):
+        """识别当前页面类型，返回页面类型标识符"""
+        try:
+            # 检查是否在登录页面
+            if self.check_element_exist('//button[@data-automation-id="signInLink"]'):
+                return "登录页面"
+            
+            # 检查各个主要部分
+            if self.check_element_exist('//h2[contains(text(),"My Information")]'):
+                return "个人信息页面"
+            
+            if self.check_element_exist('//div[@aria-labelledby="Work-Experience-section"]'):
+                return "工作经历页面"
+                
+            if self.check_element_exist('//div[@aria-labelledby="Education-section"]'):
+                return "教育经历页面"
+                
+            if self.check_element_exist('//h2[contains(text(),"Self Identify")]'):
+                return "附加信息页面"
+                
+            if self.check_element_exist('//h2[contains(text(),"Review")]'):
+                return "审核页面"
+                
+            # 检查是否在创建账号页面
+            if self.check_element_exist('//input[@data-automation-id="email"]'):
+                return "创建账号页面"
+            
+        except Exception as e:
+            print(f"[错误] 页面识别失败: {e}")
+        
+        return "未知页面"
 
+    def process_current_page(self):
+        """处理当前页面，自动选择处理方法或提示人工操作"""
+        # 识别当前页面
+        page_type = self.identify_current_page()
+        print(f"[信息] 当前识别页面类型: {page_type}")
+        
+        # 根据页面类型选择处理方法
+        if page_type == "登录页面":
+            result = self.login()
+            # 登录后等待页面跳转
+            time.sleep(5)
+            # 检查是否页面变化
+            new_page_type = self.identify_current_page()
+            if new_page_type == page_type:
+                print("[警告] 登录后页面类型未变化，可能需要人工干预")
+                return self.handle_manual_operation()
+            else:
+                print(f"[信息] 页面已变化为: {new_page_type}")
+                return True
+        elif page_type == "创建账号页面":
+            result = self.create_account()
+            if not result:
+                # 如果创建账号失败，尝试登录
+                print("[信息] 尝试登录")
+                return self.login()
+            return True
+        elif page_type == "个人信息页面":
+            print("[信息] 开始填写个人信息")
+            result = self.fill_my_information_page()
+            print("[信息] 个人信息填写完成")
+            return result
+        elif page_type == "工作经历页面":
+            print("[信息] 开始填写工作经历")
+            result = self.fill_my_experience_page()
+            print("[信息] 工作经历填写完成")
+            return result
+        elif page_type == "附加信息页面":
+            print("[信息] 开始填写附加信息")
+            result = self.fill_my_additional_information()
+            print("[信息] 附加信息填写完成")
+            return result
+        elif page_type == "审核页面":
+            print("[完成] 已到达申请审核页面")
+            return self.submit_application()
+        else:
+            # 未知页面，需要人工干预
+            print(f"[警告] 检测到未知页面类型: {page_type}")
+            return self.handle_manual_operation()
+
+    def handle_manual_operation(self):
+        """处理需要人工干预的情况"""
+        print("\n[需要人工干预] 无法自动识别或处理当前页面")
+        print("请手动完成当前页面操作，完成后输入下一步操作:")
+        print("1 - 继续自动处理")
+        print("2 - 尝试提交表单并继续")
+        print("3 - 退出程序")
+        
+        choice = input("请选择操作 [1/2/3]: ")
+        
+        if choice == "1":
+            return True
+        elif choice == "2":
+            # 尝试点击保存并继续按钮
+            try:
+                self.execute_instructions([
+                    PageStep(action="LOCATE_AND_CLICK",
+                            params=['//button[contains(text(),"Save and Continue")]'],
+                            options={"required": False})
+                ])
+                time.sleep(3)  # 等待页面加载
+                return True
+            except Exception as e:
+                print(f"[错误] 无法提交表单: {e}")
+                return False
+        else:
+            print("[退出] 用户选择退出程序")
+            return False
+
+    def submit_application(self):
+        """提交最终申请"""
+        print("[操作] 尝试提交申请...")
+        try:
+            self.execute_instructions([
+                PageStep(action="LOCATE_AND_CLICK",
+                        params=['//button[contains(text(),"Submit")]'],
+                        options={"required": False})
+            ])
+            print("[成功] 申请已提交!")
+            return True
+        except Exception as e:
+            print(f"[错误] 提交申请失败: {e}")
+            return self.handle_manual_operation()
+
+    def start_application(self):
+        """开始申请流程"""
+        self.driver.get(self.application_link)
+        print("[开始] 访问申请链接...")
+        
+        # 先执行固定的登录注册流程
+        print("[INFO] 执行登录/注册流程")
+        
         # 首先尝试创建账号
         account_created = self.create_account()
-
+        
         # 如果创建账号失败（可能是已存在），则尝试登录
         if not account_created:
             self.login()
+        
+        print("[INFO] 登录/注册完成，开始自动填写表单")
+        time.sleep(5)  # 等待页面加载
+        
+        # 循环处理剩余的表单页面
+        max_attempts = 10  # 防止无限循环
+        attempts = 0
+        
+        while attempts < max_attempts:
+            attempts += 1
+            # 等待页面加载
+            time.sleep(3)
+            
+            # 检查是否已完成申请
+            if self.check_application_review_reached():
+                print("[完成] 申请已到达审核页面")
+                self.submit_application()
+                break
+            
+            # 识别并处理当前页面
+            page_type = self.identify_current_page()
+            print(f"[信息] 当前识别页面类型: {page_type}")
+            
+            # 根据页面类型处理表单
+            if page_type == "个人信息页面":
+                print("[信息] 填写个人信息")
+                self.fill_my_information_page()
+            elif page_type == "工作经历页面":
+                print("[信息] 填写工作经历")
+                self.fill_my_experience_page()
+            elif page_type == "附加信息页面":
+                print("[信息] 填写附加信息")
+                self.fill_my_additional_information()
+            else:
+                # 未知表单页面，询问用户
+                print(f"[警告] 检测到未知页面类型: {page_type}")
+                if not self.handle_manual_operation():
+                    break
+        
+        if attempts >= max_attempts:
+            print("[警告] 达到最大尝试次数，可能存在循环或页面识别问题")
+            self.handle_manual_operation()
+        
+        print("[结束] 申请流程已完成")
 
-        application_steps = [
-            self.login,
-            self.fill_my_information_page,
-            self.fill_my_experience_page,
-            self.fill_my_additional_information,
-        ]
-        steps_count = len(application_steps)
-        for idx, step in enumerate(application_steps):
-            step()
-            if idx != steps_count - 1:
-                # waiting time for page switch
-                self.driver.implicitly_wait(3.0)
+    def wait_for_element_presence(self, xpath, timeout=None, description=None):
+        """
+        等待指定XPath的元素在页面上出现
+        
+        参数:
+            xpath (str): 要查找的元素的XPath
+            timeout (int, optional): 超时时间(秒)，如果不指定则使用默认值
+            description (str, optional): 元素描述，用于日志记录
+            
+        返回:
+            WebElement: 如果找到元素，返回该元素
+            None: 如果超时未找到元素
+            
+        示例:
+            element = self.wait_for_element_presence('//button[@id="submit"]')
+            if element:
+                element.click()
+        """
+        if timeout is None:
+            timeout = self.ELEMENT_WAITING_TIMEOUT
+            
+        if description is None:
+            description = f"XPath: {xpath}"
+            
+        try:
+            print(f"[等待] 等待元素加载 ({description})")
+            element = WebDriverWait(self.driver, timeout).until(
+                EC.presence_of_element_located((By.XPATH, xpath))
+            )
+            print(f"[成功] 元素已加载 ({description})")
+            return element
+        except (selenium_exceptions.NoSuchElementException, selenium_exceptions.TimeoutException) as e:
+            print(f"[错误] 等待元素超时 ({description}): {e}")
+            return None
+            
+    def wait_for_element_clickable(self, xpath, timeout=None, description=None):
+        """
+        等待指定XPath的元素在页面上出现并且可点击
+        
+        参数:
+            xpath (str): 要查找的元素的XPath
+            timeout (int, optional): 超时时间(秒)，如果不指定则使用默认值
+            description (str, optional): 元素描述，用于日志记录
+            
+        返回:
+            WebElement: 如果找到可点击元素，返回该元素
+            None: 如果超时未找到可点击元素
+            
+        示例:
+            element = self.wait_for_element_clickable('//button[@id="submit"]')
+            if element:
+                element.click()
+        """
+        if timeout is None:
+            timeout = self.ELEMENT_WAITING_TIMEOUT
+            
+        if description is None:
+            description = f"XPath: {xpath}"
+            
+        try:
+            print(f"[等待] 等待元素可点击 ({description})")
+            element = WebDriverWait(self.driver, timeout).until(
+                EC.element_to_be_clickable((By.XPATH, xpath))
+            )
+            print(f"[成功] 元素可点击 ({description})")
+            return element
+        except (selenium_exceptions.NoSuchElementException, selenium_exceptions.TimeoutException) as e:
+            print(f"[错误] 等待元素可点击超时 ({description}): {e}")
+            return None
 
     # exit
     # self.driver.quit()
@@ -895,12 +1167,14 @@ class WorkdayAutofill:
 
 if __name__ == '__main__':
     # 注册链接
-    APPLICATION_LINK = "https://kcura.wd1.myworkdayjobs.com/en-US/External_Career_Site/job/Remote-United-States/Advanced-Software-Engineer_25-0013/apply/applyManually?source=LinkedIn"
+    # APPLICATION_LINK = "https://kcura.wd1.myworkdayjobs.com/en-US/External_Career_Site/job/Remote-United-States/Advanced-Software-Engineer_25-0013/apply/applyManually?source=LinkedIn"
+    APPLICATION_LINK = "https://kcura.wd1.myworkdayjobs.com/External_Career_Site/job/Remote-United-States/Advanced-Software-Engineer_25-0013?source=LinkedIn"
     RESUME_PATH = "resume.yml"
     s = WorkdayAutofill(
         application_link=APPLICATION_LINK,
         resume_path=RESUME_PATH
     )
+    print(today_date_in_keys())
     print(s.load_resume())
     print(s.load_additional_information())
 
